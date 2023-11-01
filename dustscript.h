@@ -110,7 +110,7 @@ bool evalIf(std::vector<string> params)
     return result;
 }
 
-ResultTypes defaultCallback(char* key, std::vector<string> params, const char* filename, void (*callback)(char* key, std::vector<string> params, const char* filename))
+ResultTypes defaultCallback(char* key, std::vector<string> params, const char* filename, uint16_t indentation, void (*callback)(char* key, std::vector<string> params, const char* filename, uint16_t indentation))
 {
     if (strcmp(key, "if") == 0) {
         return evalIf(params) ? ResultTypes::DEFAULT : ResultTypes::IF_FALSE;
@@ -118,12 +118,12 @@ ResultTypes defaultCallback(char* key, std::vector<string> params, const char* f
     if (strcmp(key, "while") == 0) {
         return evalIf(params) ? ResultTypes::LOOP : ResultTypes::LOOP_FALSE;
     }
-    callback(key, params, filename);
+    callback(key, params, filename, indentation);
 
     return ResultTypes::DEFAULT;
 }
 
-ResultTypes parseScriptLine(char* line, const char* filename, void (*callback)(char* key, std::vector<string> params, const char* filename))
+ResultTypes parseScriptLine(char* line, const char* filename, uint16_t indentation, void (*callback)(char* key, std::vector<string> params, const char* filename, uint16_t indentation))
 {
     line = ltrim(line, ' ');
 
@@ -146,11 +146,11 @@ ResultTypes parseScriptLine(char* line, const char* filename, void (*callback)(c
 
     char* paramsStr = strtok(NULL, ":");
     std::vector<string> params = getParams(paramsStr);
-    return defaultCallback(key, params, filename, callback);
+    return defaultCallback(key, params, filename, indentation, callback);
 }
 
 
-void load(const char* filename, void (*callback)(char* key, std::vector<string> params, const char* filename))
+void load(const char* filename, void (*callback)(char* key, std::vector<string> params, const char* filename, uint16_t indentation))
 {
     FILE* file = fopen(filename, "r");
     if (file == NULL) {
@@ -169,11 +169,11 @@ void load(const char* filename, void (*callback)(char* key, std::vector<string> 
             continue;
         }
         skipTo = -1; // will set to max value
-        if (loopIndent != (uint8_t)-1 && indentation < loopIndent) {
+        if (loopIndent != (uint8_t)-1 && indentation <= loopIndent && loopStartPos != pos) {
             fseek(file, loopStartPos, SEEK_SET);
             continue;
         }
-        ResultTypes result = parseScriptLine(line, filename, callback);
+        ResultTypes result = parseScriptLine(line, filename, indentation, callback);
         if (result == ResultTypes::IF_FALSE) {
             skipTo = indentation;
         } else if (result == ResultTypes::LOOP_FALSE) {

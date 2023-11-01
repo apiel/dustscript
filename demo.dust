@@ -1,20 +1,19 @@
 $width=100
 
-createView: Granular, HIDDEN
-  include: layout.ui
+someAction: some variable, 1 + 2, should be equal to 3
+  anotherAction: indented of 2 spaces
 
-  if: $width, <, 100
-    addComponent: EncoderIsFalse, 0, 430, $width, 50
-      setEncoderId: 1
-      value: Sequencer, STEP_NOTE
+print: this should print a variable $width
 
-  $i=0
-  while: $i, <, 5
-    addComponent: EncoderLoop, $i, 430, $width * 2, 50
-    $i=$i + 1
+if: $width, <, 100
+  print: this should not be printed as $width is not inferior to 100
 
-  # $i=$i + 1
-  # addComponent: Yo, $i * 100, 50.5, 100.50
-  #   label: Some string with var $i in the middle
+if: $width, >, 50
+  print: this should be printed as $width is superior to 50
 
-  # if: abc, ==, abc
+$i=0
+while: $i, <, 5
+  print: This is a loop at index position $i
+  $i=$i + 1
+
+print: 10 + sqr(2) - 1 + 4 / 2, should be equal to 26
