@@ -112,7 +112,6 @@ bool evalIf(std::vector<string> params)
 
 ResultTypes defaultCallback(char* command, std::vector<string> params, const char* filename, uint8_t indentation, void (*callback)(char* command, std::vector<string> params, const char* filename, uint8_t indentation))
 {
-    printf("defaultCallback (%s, %d) command: %s params:", filename, indentation, command);
     if (strcmp(command, "if") == 0) {
         return evalIf(params) ? ResultTypes::DEFAULT : ResultTypes::IF_FALSE;
     }
