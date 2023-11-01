@@ -43,7 +43,7 @@ Mathematical operation are supported. The following operators are supported: `+`
 
 > To get styling for .dust extension in VScode, use `Ctrl` + `Shift` + `P` and type `Change Language Mode`. Then select `Configure File Association for '.dust'...` and select `CoffeeScript` or `JavaScript` (the color seem to work pretty well).
 
-To use it, just include `dustscript.h`. 
+To use DustScript in your application, just include `dustscript.h`. 
 
 > As example, see `dustscript.cpp`.
 
