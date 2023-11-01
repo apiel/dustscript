@@ -110,20 +110,20 @@ bool evalIf(std::vector<string> params)
     return result;
 }
 
-ResultTypes defaultCallback(char* key, std::vector<string> params, const char* filename, uint16_t indentation, void (*callback)(char* key, std::vector<string> params, const char* filename, uint16_t indentation))
+ResultTypes defaultCallback(char* command, std::vector<string> params, const char* filename, uint16_t indentation, void (*callback)(char* command, std::vector<string> params, const char* filename, uint16_t indentation))
 {
-    if (strcmp(key, "if") == 0) {
+    if (strcmp(command, "if") == 0) {
         return evalIf(params) ? ResultTypes::DEFAULT : ResultTypes::IF_FALSE;
     }
-    if (strcmp(key, "while") == 0) {
+    if (strcmp(command, "while") == 0) {
         return evalIf(params) ? ResultTypes::LOOP : ResultTypes::LOOP_FALSE;
     }
-    callback(key, params, filename, indentation);
+    callback(command, params, filename, indentation);
 
     return ResultTypes::DEFAULT;
 }
 
-ResultTypes parseScriptLine(char* line, const char* filename, uint16_t indentation, void (*callback)(char* key, std::vector<string> params, const char* filename, uint16_t indentation))
+ResultTypes parseScriptLine(char* line, const char* filename, uint16_t indentation, void (*callback)(char* command, std::vector<string> params, const char* filename, uint16_t indentation))
 {
     line = ltrim(line, ' ');
 
@@ -139,18 +139,18 @@ ResultTypes parseScriptLine(char* line, const char* filename, uint16_t indentati
         return ResultTypes::DEFAULT;
     }
 
-    char* key = strtok(line, ":");
-    if (key == NULL) {
+    char* command = strtok(line, ":");
+    if (command == NULL) {
         return ResultTypes::DEFAULT;
     }
 
     char* paramsStr = strtok(NULL, ":");
     std::vector<string> params = getParams(paramsStr);
-    return defaultCallback(key, params, filename, indentation, callback);
+    return defaultCallback(command, params, filename, indentation, callback);
 }
 
 
-void load(const char* filename, void (*callback)(char* key, std::vector<string> params, const char* filename, uint16_t indentation))
+void load(const char* filename, void (*callback)(char* command, std::vector<string> params, const char* filename, uint16_t indentation))
 {
     FILE* file = fopen(filename, "r");
     if (file == NULL) {

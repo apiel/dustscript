@@ -2,15 +2,15 @@
 
 #include "dustscript.h"
 
-void scriptCallback(char *key, std::vector<string> params, const char *filename, uint16_t indentation)
+void scriptCallback(char *command, std::vector<string> params, const char *filename, uint16_t indentation)
 {
-    if (strcmp(key, "print") == 0)
+    if (strcmp(command, "print") == 0)
     {
         printf(">> LOG: %s\n", params[0].c_str());
     }
     else
     {
-        printf("(%s, %d) key: %s params:", filename, indentation, key);
+        printf("(%s, %d) command: %s params:", filename, indentation, command);
         for (auto param : params)
         {
             printf("'%s' ", param.c_str());
