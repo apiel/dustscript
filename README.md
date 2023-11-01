@@ -1,4 +1,4 @@
-# dustscript
+# DustScript
 
 DustScript is ultra minimalistic scripting language. Minimalistic as it is only few hundred lines of code, not even 1000 lines. Therefor the feature are limited to if statement, loop, variables and mathematical calculation. 
 
