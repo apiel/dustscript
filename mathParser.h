@@ -57,7 +57,9 @@ MathFunction mathFunctions[] = {
     { "SQRT", sqrt },
     { "SQR", [](double a) { return a * a; } },
     { "ROUND", round },
-    { "INT", floor },
+    { "FLOOR", floor },
+    { "CEIL", ceil },
+    { "ABS", fabs },
 };
 const uint8_t mathFunctionCount = sizeof(mathFunctions) / sizeof(MathFunction);
 

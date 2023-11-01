@@ -30,11 +30,13 @@ print: 10 + sqr(2) - 1 + 4 / 2, should be equal to 26
 
 `$var=1` if a line start with dollar sign `$` it will assign a variable. The variable are all global, so even if they are indented, they will stay global.
 
-For the `if` and `while` statement, indentation matter. Spaces ` ` are use for indention, tab will not work. A code block will be defined his indentation (similar to python).
+For the `if` and `while` statement, indentation matter. Spaces ` ` are use for indention, tab will not work. A code block will be defined by his indentation (similar to python).
 
 `if` statement take 3 parameters where the second parameter is the operator to compare parameter 1 and 3. The available operators are `==` (equal), `!=` (not equal), `>` (superior), `<` (inferior), `>=` (superior or equal), `<=` (inferior or equal). There if no `elseif` or `else` statement.
 
 `while` will loop till the condition is true. The condtion work in the same way as the if statement.
+
+Mathematical operation are supported. The following operators are supported: `+`, `-`, `*`, `/`, `%`, `^`. It does also support basic math function, e.g. `sqr(2)` will result to `4`. The following math function are supported: `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`, `ln` (for log), `log` (for log10), `sqrt`, `sqr` (for square value), `round`, `floor`, `ceil`, `abs`. All mathematical operation are return as double and all trailing zero will be removed.
 
 > To get styling for .dust extension in VScode, use `Ctrl` + `Shift` + `P` and type `Change Language Mode`. Then select `Configure File Association for '.dust'...` and select `CoffeeScript` or `JavaScript` (the color seem to work pretty well).
 
@@ -58,7 +60,7 @@ int main()
 }
 ```
 
-Simply call `DustScript::load` with script path as first parameter and the callback function as second parameter. The callback function is used to bind the custom function. For example,  to print out the first parameter with the command `print` do:
+Simply call `DustScript::load` with the script path as first parameter and the callback function as second parameter. The callback function is used to bind custom function. For example, to print out the first parameter with the command `print` do:
 
 ```cpp
 void scriptCallback(char *command, std::vector<string> params, const char *filename, uint16_t indentation)
@@ -69,3 +71,5 @@ void scriptCallback(char *command, std::vector<string> params, const char *filen
     }
 }
 ```
+
+That's it!
