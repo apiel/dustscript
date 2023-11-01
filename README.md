@@ -27,11 +27,11 @@ while: $i, <, 5
 print: 10 + sqr(2) - 1 + 4 / 2, should be equal to 26
 ```
 
-`# comments` commented line start with a dash sign. Only full line cann be commented. It is not possible to comment the end of a command.
+`# comments` commented line start with a dash sign. Only a full line can be commented. It is not possible to comment the end of a command.
 
 `command: param1, param2, param3` the value before the colon is the command, the values after are the parameter seprated by coma. `if` and `while` are reserved command name.
 
-`$var=1` if a line start with dollar sign `$` it will assign a variable. The variable are all global, so even if they are indented, they will stay global.
+`$var=1` if a line start with dollar sign `$` it will assign a variable. The variable are all global, so even if they are indented, they will stay global. A variable can be used in a command parameter or in a variable assignement.
 
 For the `if` and `while` statement, indentation matter. Spaces ` ` are use for indention, tab will not work. A code block will be defined by his indentation (similar to python).
 
