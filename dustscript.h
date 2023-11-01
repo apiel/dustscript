@@ -110,8 +110,9 @@ bool evalIf(std::vector<string> params)
     return result;
 }
 
-ResultTypes defaultCallback(char* command, std::vector<string> params, const char* filename, uint16_t indentation, void (*callback)(char* command, std::vector<string> params, const char* filename, uint16_t indentation))
+ResultTypes defaultCallback(char* command, std::vector<string> params, const char* filename, uint8_t indentation, void (*callback)(char* command, std::vector<string> params, const char* filename, uint8_t indentation))
 {
+    printf("defaultCallback (%s, %d) command: %s params:", filename, indentation, command);
     if (strcmp(command, "if") == 0) {
         return evalIf(params) ? ResultTypes::DEFAULT : ResultTypes::IF_FALSE;
     }
@@ -123,7 +124,7 @@ ResultTypes defaultCallback(char* command, std::vector<string> params, const cha
     return ResultTypes::DEFAULT;
 }
 
-ResultTypes parseScriptLine(char* line, const char* filename, uint16_t indentation, void (*callback)(char* command, std::vector<string> params, const char* filename, uint16_t indentation))
+ResultTypes parseScriptLine(char* line, const char* filename, uint8_t indentation, void (*callback)(char* command, std::vector<string> params, const char* filename, uint8_t indentation))
 {
     line = ltrim(line, ' ');
 
@@ -150,7 +151,7 @@ ResultTypes parseScriptLine(char* line, const char* filename, uint16_t indentati
 }
 
 
-void load(const char* filename, void (*callback)(char* command, std::vector<string> params, const char* filename, uint16_t indentation))
+void load(const char* filename, void (*callback)(char* command, std::vector<string> params, const char* filename, uint8_t indentation))
 {
     FILE* file = fopen(filename, "r");
     if (file == NULL) {
@@ -164,7 +165,7 @@ void load(const char* filename, void (*callback)(char* command, std::vector<stri
     uint8_t loopIndent = -1;
     while (fgets(line, sizeof(line), file)) {
         long pos = ftell(file) - strlen(line);
-        uint16_t indentation = countLeadingChar(line, ' ');
+        uint8_t indentation = countLeadingChar(line, ' ');
         if (indentation > skipTo) {
             continue;
         }
