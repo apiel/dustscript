@@ -1,6 +1,6 @@
 # DustScript
 
-DustScript is ultra minimalistic scripting language. Minimalistic as it is only few hundred lines of code, not even 1000 lines. Therefor the feature are limited to if statement, loop, variables and mathematical calculation. 
+DustScript is ultra minimalistic scripting language. Minimalistic as it is only few hundred lines of code, not even 1000 lines. Therefor the feature are limited to if statement, loop, variables and mathematical calculation.
 
 The syntax is also simplified to make it easy to parse:
 
@@ -43,7 +43,7 @@ Mathematical operation are supported. The following operators are supported: `+`
 
 > To get styling for .dust extension in VScode, use `Ctrl` + `Shift` + `P` and type `Change Language Mode`. Then select `Configure File Association for '.dust'...` and select `CoffeeScript` or `JavaScript` (the color seem to work pretty well).
 
-To use DustScript in your application, just include `dustscript.h`. 
+To use DustScript in your application, just include `dustscript.h`.
 
 > As example, see `dustscript.cpp`.
 
@@ -76,3 +76,18 @@ void scriptCallback(char *command, std::vector<string> params, const char *filen
 ```
 
 That's it!
+
+## MathParser
+
+The math parser is used by DustScript to parse mathematical operations. However it could be use alone to parse mathematical string operation. To use it, include `mathParser.h` and call `MathParser::eval`:
+
+```cpp
+#include "mathParser.h"
+
+int main()
+{
+    double val = MathParser::eval("10 + sqr(2) - 1 + 4 / 2");
+    // do something with the result...
+    return 0;
+}
+```

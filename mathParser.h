@@ -1,10 +1,7 @@
 #ifndef _MATH_MathParser_H_
 #define _MATH_MathParser_H_
 
-#include <cctype>
-#include <cstdlib>
 #include <cstring>
-#include <iostream>
 #include <math.h>
 #include <stdexcept>
 
