@@ -4,11 +4,12 @@ DustScript is ultra minimalistic scripting language. Minimalistic as it is only 
 
 The syntax is also simplified to make it easy to parse:
 
-```js
-$width=100
+```coffee
+someAction: some parameters, 1 + 2, should be equal to 3
+  anotherAction: indented with 2 spaces
 
-someAction: some variable, 1 + 2, should be equal to 3
-  anotherAction: indented of 2 spaces
+# define a variable
+$width=100
 
 print: this should print a variable $width
 
@@ -25,6 +26,8 @@ while: $i, <, 5
 
 print: 10 + sqr(2) - 1 + 4 / 2, should be equal to 26
 ```
+
+`# comments` commented line start with a dash sign. Only full line cann be commented. It is not possible to comment the end of a command.
 
 `command: param1, param2, param3` the value before the colon is the command, the values after are the parameter seprated by coma. `if` and `while` are reserved command name.
 

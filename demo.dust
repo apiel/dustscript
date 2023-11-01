@@ -1,7 +1,8 @@
-$width=100
-
-someAction: some variable, 1 + 2, should be equal to 3
+someAction: some parameters, 1 + 2, should be equal to 3
   anotherAction: indented of 2 spaces
+
+# define a variable
+$width=100
 
 print: this should print a variable $width
 
