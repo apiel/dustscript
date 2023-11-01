@@ -144,7 +144,7 @@ ResultTypes parseScriptLine(char* line, const char* filename, uint8_t indentatio
         return ResultTypes::DEFAULT;
     }
 
-    char* paramsStr = strtok(NULL, ":");
+    char* paramsStr = line + strlen(command) + 1;
     std::vector<string> params = getParams(paramsStr);
     return defaultCallback(command, params, filename, indentation, callback);
 }
