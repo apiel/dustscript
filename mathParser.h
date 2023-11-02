@@ -100,7 +100,7 @@ bool isDelimiter()
     return isOperator();
 }
 
-char* setTokenTillDelimiter(char* temp, bool (*delimiter)())
+char* setTokenTill(char* temp, bool (*delimiter)())
 {
     while (*getExpPtr() && delimiter()) {
         *temp++ = toupper(*expPtr++);
@@ -125,13 +125,11 @@ void setToken()
         *tokenPtr = *expPtr++; // advance to next char
     } else if (isalpha(*getExpPtr())) {
         tokenType = FUNCTION;
-        tokenPtr = setTokenTillDelimiter(tokenPtr, []() { return !isDelimiter(); });
+        tokenPtr = setTokenTill(tokenPtr, []() { return !isDelimiter(); });
     } else if (isdigit(*getExpPtr()) || *getExpPtr() == '.') {
         tokenType = NUMBER;
-        tokenPtr = setTokenTillDelimiter(tokenPtr, []() { return isdigit(*getExpPtr()) || *getExpPtr() == '.'; });
+        tokenPtr = setTokenTill(tokenPtr, []() { return isdigit(*getExpPtr()) || *getExpPtr() == '.'; });
     }
-
-    // printf("token: %s type: %d\n", token, tokenType);
 }
 
 double evalApply(double result)
@@ -199,6 +197,10 @@ double eval(char* exp)
         if (tokenType == FUNCTION) {
             throw std::runtime_error("Syntax Error " + std::string(token));
         }
+        if (*expPtr) { // Same as strlen(expPtr) > 0
+            throw std::runtime_error("Syntax Error, end of line is not a math expression: " + std::string(expPtr));
+        }
+
         return result;
     } catch (const std::exception& e) {
         throw std::runtime_error("MathParser Error: " + std::string(e.what()));

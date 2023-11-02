@@ -36,34 +36,9 @@ protected:
         { ">=", [](string left, string right) { return stod(left) >= stod(right); } },
     };
 
-    string parseValue(char* param)
-    {
-        try {
-            double val = MathParser::eval(param);
-            return rtrim(std::to_string(val), "0.");
-        } catch (const std::exception& e) {
-            // do nothing, it's just not a math expression
-        }
-        return param;
-    }
-
-    // char* parseValue2(char* param)
-    // {
-    //     param = ltrim(param, ' ');
-    //     try {
-    //         double val = MathParser::eval(param);
-    //         printf(">>>>>>>>>>>>>> %s val: %f\n", param, val);
-    //         return (char *)rtrim(std::to_string(val), "0.").c_str();
-    //     } catch (const std::exception& e) {
-    //         // do nothing, it's just not a math expression
-    //     }
-    //     return param;
-    // }
-
-    char* applyVariable(char* str)
+    string applyVariable(char* str)
     {
         std::string target(str);
-
         for (auto variable : variables) {
             int pos;
             std::string k(variable.key);
@@ -71,29 +46,54 @@ protected:
                 target.replace(pos, k.length(), variable.value);
             }
         }
-        strcpy(str, target.c_str());
-        return str;
+        return target;
     }
 
-    void setVariable(char* line)
-    {
-        char* key = strtok(line, "=");
-        char* value = strtok(NULL, "=");
-        if (key == NULL || value == NULL) {
-            throw std::runtime_error("Invalid variable line " + string(line));
-        }
-        value = applyVariable(value);
+    struct Line {
+        char* key;
+        char* value;
+    };
 
+    Line splitLine(char* line, const char* token)
+    {
+        char* key = strtok(line, token);
+        char* value = line + strlen(key) + 1; // Do not use strtok to split only in 2 element, in case there is more token
+        if (key == NULL || value == NULL) {
+            throw std::runtime_error("Invalid line " + string(line));
+        }
+
+        value = ltrim(value, ' ');
+        string val = parseValue(applyVariable(value));
+        strcpy(value, val.c_str());
+
+        return { key, value };
+    }
+
+    string parseValue(string value)
+    {
+        try {
+            double val = MathParser::eval((char *)value.c_str());
+            return rtrim(std::to_string(val), "0.");
+        } catch (const std::exception& e) {
+            // do nothing, it's just not a math expression
+            // printf("!!! error: %s\n", e.what());
+        }
+        return value;
+    }
+
+    void setVariable(char* lineStr)
+    {
+        Line line = splitLine(lineStr, "=");
         // search first if variable already exists
         for (int i = 0; i < variables.size(); i++) {
-            if (variables[i].key == key) {
-                variables[i].value = parseValue(value);
+            if (variables[i].key == line.key) {
+                variables[i].value = line.value;
                 return;
             }
         }
         Variable variable;
-        variable.key = key;
-        variable.value = parseValue(value);
+        variable.key = line.key;
+        variable.value = line.value;
         variables.push_back(variable);
     }
 
@@ -127,33 +127,24 @@ protected:
     static DustScript* instance;
 
 public:
-    ResultTypes parseScriptLine(char* line, const char* filename, uint8_t indentation, void (*callback)(char* command, char* params, const char* filename, uint8_t indentation))
+    ResultTypes parseScriptLine(char* lineStr, const char* filename, uint8_t indentation, void (*callback)(char* command, char* params, const char* filename, uint8_t indentation))
     {
-        line = ltrim(line, ' ');
+        lineStr = ltrim(lineStr, ' ');
 
         // ignore comments and empty lines
-        if (line[0] == '#' || line[0] == '\n') {
+        if (lineStr[0] == '#' || lineStr[0] == '\n') {
             return ResultTypes::DEFAULT;
         }
 
-        line = rtrim(line, '\n');
+        lineStr = rtrim(lineStr, '\n');
 
-        if (line[0] == '$') {
-            setVariable(line);
+        if (lineStr[0] == '$') {
+            setVariable(lineStr);
             return ResultTypes::DEFAULT;
         }
 
-        char* command = strtok(line, ":");
-        if (command == NULL) {
-            return ResultTypes::DEFAULT;
-        }
-
-        char* params = line + strlen(command) + 1;
-        params = ltrim(params, ' ');
-        applyVariable(params);
-        // params = parseValue2(params);
-
-        return defaultCallback(command, params, filename, indentation, callback);
+        Line line = splitLine(lineStr, ":");
+        return defaultCallback(line.key, line.value, filename, indentation, callback);
     }
 
     void run(const char* filename, void (*callback)(char* command, char* params, const char* filename, uint8_t indentation))
