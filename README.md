@@ -75,6 +75,27 @@ void scriptCallback(char *command, std::vector<string> params, const char *filen
 }
 ```
 
+DustScript can run multiple instance to have a separate stack for the variables, instead to call the static method `DustScript::load`, create a new DustScript object `new DustScript` and call the method `dustScript.run("demo.dust", scriptCallback)`:
+
+```cpp
+#include <stdio.h>
+#include "dustscript.h"
+
+void scriptCallback(char *command, std::vector<string> params, const char *filename, uint16_t indentation)
+{
+    // callback function to bind custom function and params
+}
+
+int main()
+{
+    DustScript dust1 = new DustScript;
+    DustScript dust2 = new DustScript;
+    dust1.run("demo.dust", scriptCallback);
+    dust2.run("demo2.dust", scriptCallback);
+    return 0;
+}
+```
+
 That's it!
 
 ## MathParser
