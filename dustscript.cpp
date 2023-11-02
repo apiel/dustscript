@@ -2,7 +2,7 @@
 
 #include "dustscript.h"
 
-void scriptCallback(char *command, std::vector<string> params, const char *filename, uint16_t indentation)
+void scriptCallback(char *command, std::vector<string> params, const char *filename, uint8_t indentation)
 {
     if (strcmp(command, "print") == 0)
     {
