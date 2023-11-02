@@ -16,6 +16,7 @@ enum types { DELIMITER = 1,
 char* expPtr; // points to the expression
 char token[64]; // holds current token
 char tokenType; // holds token's type
+bool gotOperator = false;
 
 struct Operator {
     char sign;
@@ -123,6 +124,7 @@ void setToken()
     if (isDelimiter()) {
         tokenType = DELIMITER;
         *tokenPtr = *expPtr++; // advance to next char
+        gotOperator = true;
     } else if (isalpha(*getExpPtr())) {
         tokenType = FUNCTION;
         tokenPtr = setTokenTill(tokenPtr, []() { return !isDelimiter(); });
@@ -187,6 +189,7 @@ double evalOperator(double value, uint8_t operatorIndex)
 double eval(char* exp)
 {
     try {
+        gotOperator = false;
         expPtr = exp;
         setToken();
         if (!*token) {
@@ -199,6 +202,9 @@ double eval(char* exp)
         }
         if (*expPtr) { // Same as strlen(expPtr) > 0
             throw std::runtime_error("Syntax Error, end of line is not a math expression: " + std::string(expPtr));
+        }
+        if (!gotOperator) {
+            throw std::runtime_error("There was no calculation in this expression");
         }
 
         return result;
