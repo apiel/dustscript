@@ -15,9 +15,29 @@ protected:
     };
     std::vector<Variable> variables;
 
+    enum ResultTypes {
+        DEFAULT = 0,
+        IF_FALSE,
+        LOOP,
+        LOOP_FALSE,
+    };
+
+    struct Operator {
+        const char* sign;
+        bool (*test)(string left, string right);
+    };
+    static const uint8_t operatorCount = 6;
+    Operator operators[operatorCount] = {
+        { "==", [](string left, string right) { return left == right; } },
+        { "!=", [](string left, string right) { return left != right; } },
+        { ">", [](string left, string right) { return stod(left) > stod(right); } },
+        { "<", [](string left, string right) { return stod(left) < stod(right); } },
+        { "<=", [](string left, string right) { return stod(left) <= stod(right); } },
+        { ">=", [](string left, string right) { return stod(left) >= stod(right); } },
+    };
+
     string parseValue(char* param)
     {
-        param = ltrim(param, ' ');
         try {
             double val = MathParser::eval(param);
             return rtrim(std::to_string(val), "0.");
@@ -26,6 +46,19 @@ protected:
         }
         return param;
     }
+
+    // char* parseValue2(char* param)
+    // {
+    //     param = ltrim(param, ' ');
+    //     try {
+    //         double val = MathParser::eval(param);
+    //         printf(">>>>>>>>>>>>>> %s val: %f\n", param, val);
+    //         return (char *)rtrim(std::to_string(val), "0.").c_str();
+    //     } catch (const std::exception& e) {
+    //         // do nothing, it's just not a math expression
+    //     }
+    //     return param;
+    // }
 
     char* applyVariable(char* str)
     {
@@ -64,54 +97,21 @@ protected:
         variables.push_back(variable);
     }
 
-    std::vector<string> getParams(char* paramsStr)
+    bool evalIf(string params)
     {
-        std::vector<string> params;
-        if (paramsStr != NULL) {
-            applyVariable(paramsStr);
-            char* param = strtok(paramsStr, ",");
-            while (param != NULL) {
-                params.push_back(parseValue(param));
-                param = strtok(NULL, ",");
+        for (auto op : operators) {
+            size_t pos = params.find(op.sign);
+            if (pos != std::string::npos) {
+                string left = params.substr(0, pos);
+                string right = params.substr(pos + strlen(op.sign));
+                return op.test(left, right);
             }
         }
-        return params;
+
+        return false;
     }
 
-    enum ResultTypes {
-        DEFAULT = 0,
-        IF_FALSE,
-        LOOP,
-        LOOP_FALSE,
-    };
-
-    bool evalIf(std::vector<string> params)
-    {
-        if (params.size() != 3) {
-            throw std::runtime_error("Invalid if statement, required 3 paremeters: if: $var1, =, $var3");
-        }
-
-        bool result = false;
-        if (params[1] == "==") {
-            result = params[0] == params[2];
-        } else if (params[1] == "!=") {
-            result = params[0] != params[2];
-        } else if (params[1] == ">") {
-            result = stod(params[0]) > stod(params[2]);
-        } else if (params[1] == "<") {
-            result = stod(params[0]) < stod(params[2]);
-        } else if (params[1] == ">=") {
-            result = stod(params[0]) >= stod(params[2]);
-        } else if (params[1] == "<=") {
-            result = stod(params[0]) <= stod(params[2]);
-        } else {
-            throw std::runtime_error("Invalid if statement operator: " + params[1]);
-        }
-
-        return result;
-    }
-
-    ResultTypes defaultCallback(char* command, std::vector<string> params, const char* filename, uint8_t indentation, void (*callback)(char* command, std::vector<string> params, const char* filename, uint8_t indentation))
+    ResultTypes defaultCallback(char* command, char* params, const char* filename, uint8_t indentation, void (*callback)(char* command, char* params, const char* filename, uint8_t indentation))
     {
         if (strcmp(command, "if") == 0) {
             return evalIf(params) ? ResultTypes::DEFAULT : ResultTypes::IF_FALSE;
@@ -127,7 +127,7 @@ protected:
     static DustScript* instance;
 
 public:
-    ResultTypes parseScriptLine(char* line, const char* filename, uint8_t indentation, void (*callback)(char* command, std::vector<string> params, const char* filename, uint8_t indentation))
+    ResultTypes parseScriptLine(char* line, const char* filename, uint8_t indentation, void (*callback)(char* command, char* params, const char* filename, uint8_t indentation))
     {
         line = ltrim(line, ' ');
 
@@ -148,12 +148,15 @@ public:
             return ResultTypes::DEFAULT;
         }
 
-        char* paramsStr = line + strlen(command) + 1;
-        std::vector<string> params = getParams(paramsStr);
+        char* params = line + strlen(command) + 1;
+        params = ltrim(params, ' ');
+        applyVariable(params);
+        // params = parseValue2(params);
+
         return defaultCallback(command, params, filename, indentation, callback);
     }
 
-    void run(const char* filename, void (*callback)(char* command, std::vector<string> params, const char* filename, uint8_t indentation))
+    void run(const char* filename, void (*callback)(char* command, char* params, const char* filename, uint8_t indentation))
     {
         FILE* file = fopen(filename, "r");
         if (file == NULL) {
@@ -190,7 +193,7 @@ public:
         fclose(file);
     }
 
-    static DustScript& load(const char* filename, void (*callback)(char* command, std::vector<string> params, const char* filename, uint8_t indentation))
+    static DustScript& load(const char* filename, void (*callback)(char* command, char* params, const char* filename, uint8_t indentation))
     {
         if (!instance) {
             instance = new DustScript();

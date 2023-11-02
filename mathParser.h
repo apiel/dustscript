@@ -100,9 +100,9 @@ bool isDelimiter()
     return isOperator();
 }
 
-char* setTokenTillDelimiter(char* temp)
+char* setTokenTillDelimiter(char* temp, bool (*delimiter)())
 {
-    while (*getExpPtr() && !isDelimiter()) {
+    while (*getExpPtr() && delimiter()) {
         *temp++ = toupper(*expPtr++);
     }
     *temp = '\0';
@@ -125,11 +125,13 @@ void setToken()
         *tokenPtr = *expPtr++; // advance to next char
     } else if (isalpha(*getExpPtr())) {
         tokenType = FUNCTION;
-        tokenPtr = setTokenTillDelimiter(tokenPtr);
+        tokenPtr = setTokenTillDelimiter(tokenPtr, []() { return !isDelimiter(); });
     } else if (isdigit(*getExpPtr()) || *getExpPtr() == '.') {
         tokenType = NUMBER;
-        tokenPtr = setTokenTillDelimiter(tokenPtr);
+        tokenPtr = setTokenTillDelimiter(tokenPtr, []() { return isdigit(*getExpPtr()) || *getExpPtr() == '.'; });
     }
+
+    // printf("token: %s type: %d\n", token, tokenType);
 }
 
 double evalApply(double result)
@@ -187,14 +189,17 @@ double evalOperator(double value, uint8_t operatorIndex)
 double eval(char* exp)
 {
     try {
-        double result;
         expPtr = exp;
         setToken();
         if (!*token) {
             throw std::runtime_error("No Expression Present");
             return (double)0;
         }
-        return evalOperator(result);
+        double result = evalOperator(0);
+        if (tokenType == FUNCTION) {
+            throw std::runtime_error("Syntax Error " + std::string(token));
+        }
+        return result;
     } catch (const std::exception& e) {
         throw std::runtime_error("MathParser Error: " + std::string(e.what()));
     }

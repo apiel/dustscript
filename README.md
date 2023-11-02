@@ -13,23 +13,23 @@ $width=100
 
 print: this should print a variable $width
 
-if: $width, <, 100
+if: $width < 100
   print: this should not be printed as $width is not inferior to 100
 
-if: $width, >, 50
+if: $width > 50
   print: this should be printed as $width is superior to 50
 
 $i=0
-while: $i, <, 5
+while: $i < 5
   print: This is a loop at index position $i
   $i=$i + 1
 
-print: 10 + sqr(2) - 1 + 4 / 2, should be equal to 26
+print: 10 + sqr(2) - 1 + 4 / 2 should be equal to 15
 ```
 
 `# comments` commented line start with a dash sign. Only a full line can be commented. It is not possible to comment the end of a command.
 
-`command: param1, param2, param3` the value before the colon is the command, the values after are the parameter seprated by coma. `if` and `while` are reserved command name.
+`command: parameters` the value before the colon is the command, the values after is/are the parameter(s). Parameter(s) is a simple string value that is not processed by dustscript, only variable and math calculation are applied to it. `if` and `while` are reserved command name.
 
 `$var=1` if a line start with dollar sign `$` it will assign a variable. The variable are all global, so even if they are indented, they will stay global. A variable can be used in a command parameter or in a variable assignement.
 
@@ -51,7 +51,7 @@ To use DustScript in your application, just include `dustscript.h`.
 #include <stdio.h>
 #include "dustscript.h"
 
-void scriptCallback(char *command, std::vector<string> params, const char *filename, uint16_t indentation)
+void scriptCallback(char *command, char* params, const char *filename, uint16_t indentation)
 {
     // callback function to bind custom function and params
 }
@@ -66,11 +66,11 @@ int main()
 Simply call `DustScript::load` with the script path as first parameter and the callback function as second parameter. The callback function is used to bind custom function. For example, to print out the first parameter with the command `print` do:
 
 ```cpp
-void scriptCallback(char *command, std::vector<string> params, const char *filename, uint16_t indentation)
+void scriptCallback(char *command, char* params, const char *filename, uint16_t indentation)
 {
     if (strcmp(command, "print") == 0)
     {
-        printf(">> LOG: %s\n", params[0].c_str());
+        printf(">> LOG: %s\n", params);
     }
 }
 ```
@@ -81,7 +81,7 @@ DustScript can run multiple instance to have a separate stack for the variables,
 #include <stdio.h>
 #include "dustscript.h"
 
-void scriptCallback(char *command, std::vector<string> params, const char *filename, uint16_t indentation)
+void scriptCallback(char *command, char* params, const char *filename, uint16_t indentation)
 {
     // callback function to bind custom function and params
 }
