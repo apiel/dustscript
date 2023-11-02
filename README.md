@@ -24,7 +24,7 @@ while: $i < 5
   print: This is a loop at index position $i
   $i=$i + 1
 
-print: 10 + sqr(2) - 1 + 4 / 2 should be equal to 15
+print: (10 + sqr(2) - 1 + 4 / 2) should be equal to 15
 ```
 
 `# comments` commented line start with a dash sign. Only a full line can be commented. It is not possible to comment the end of a command.
@@ -39,7 +39,7 @@ For the `if` and `while` statement, indentation matter. Spaces ` ` are use for i
 
 `while` will loop till the condition is true. The condtion work in the same way as the if statement.
 
-Mathematical operation are supported. The following operators are supported: `+`, `-`, `*`, `/`, `%`, `^`. It does also support basic math function, e.g. `sqr(2)` will result to `4`. The following math function are supported: `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`, `ln` (for log), `log` (for log10), `sqrt`, `sqr` (for square value), `round`, `floor`, `ceil`, `abs`. All mathematical operation are return as double and all trailing zero will be removed.
+Mathematical operation are supported. The following operators are supported: `+`, `-`, `*`, `/`, `%`, `^`. It does also support basic math function, e.g. `sqr(2)` will result to `4`. The following math function are supported: `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`, `ln` (for log), `log` (for log10), `sqrt`, `sqr` (for square value), `round`, `floor`, `ceil`, `abs`. All mathematical operation are return as double and all trailing zero will be removed. To evaluate a math expression within a string it must be surrounded by parentheses, e.g. `print: this (1+2) should be equal to 3`, in this example `(1+2)` will be evaluated as math expression.
 
 > To get styling for .dust extension in VScode, use `Ctrl` + `Shift` + `P` and type `Change Language Mode`. Then select `Configure File Association for '.dust'...` and select `CoffeeScript` or `JavaScript` (the color seem to work pretty well).
 

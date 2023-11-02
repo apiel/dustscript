@@ -63,16 +63,39 @@ protected:
         }
 
         value = ltrim(value, ' ');
-        string val = parseValue(applyVariable(value));
+        string val = applyMathInString(applyMath(applyVariable(value)));
         strcpy(value, val.c_str());
 
         return { key, value };
     }
 
-    string parseValue(string value)
+    string applyMathInString(string value)
+    {
+        size_t start = value.find('(');
+        string prefix = value.substr(0, start);
+        string mathExpr = value.substr(start + 1);
+        uint8_t open = 1;
+        int end = 0;
+        for (; end < mathExpr.length(); end++) {
+            if (mathExpr[end] == '(') {
+                open++;
+            } else if (mathExpr[end] == ')') {
+                open--;
+                if (open == 0) {
+                    string rest = mathExpr.substr(end + 1);
+                    value = prefix + applyMath(mathExpr.substr(0, end)) + rest;
+                    value = applyMathInString(value);
+                    break;
+                }
+            }
+        }
+        return value;
+    }
+
+    string applyMath(string value)
     {
         try {
-            double val = MathParser::eval((char *)value.c_str());
+            double val = MathParser::eval((char*)value.c_str());
             return rtrim(std::to_string(val), "0.");
         } catch (const std::exception& e) {
             // do nothing, it's just not a math expression
