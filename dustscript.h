@@ -58,8 +58,8 @@ protected:
     {
         char* key = strtok(line, token);
         char* value = line + strlen(key) + 1; // Do not use strtok to split only in 2 element, in case there is more token
-        if (key == NULL || value == NULL) {
-            throw std::runtime_error("Invalid line " + string(line));
+        if (key == NULL || value[0] == '\0') {
+            throw std::runtime_error("Invalid line: " + string(line));
         }
 
         value = ltrim(value, ' ');
@@ -172,39 +172,47 @@ public:
 
     void run(const char* filename, void (*callback)(char* command, char* params, const char* filename, uint8_t indentation))
     {
-        FILE* file = fopen(filename, "r");
-        if (file == NULL) {
-            throw std::runtime_error("Failed to load script: " + string(filename));
-        }
+        uint lineCount = 0;
+        string lineStack = "";
+        try {
+            FILE* file = fopen(filename, "r");
+            if (file == NULL) {
+                throw std::runtime_error("Failed to load script: " + string(filename));
+            }
 
-        char line[512];
-
-        uint8_t skipTo = -1;
-        long loopStartPos;
-        uint8_t loopIndent = -1;
-        while (fgets(line, sizeof(line), file)) {
-            long pos = ftell(file) - strlen(line);
-            uint8_t indentation = countLeadingChar(line, ' ');
-            if (indentation > skipTo) {
-                continue;
+            uint8_t skipTo = -1;
+            long loopStartPos;
+            uint8_t loopIndent = -1;
+            char line[512];
+            while (fgets(line, sizeof(line), file)) {
+                lineCount++;
+                lineStack = line;
+                long pos = ftell(file) - strlen(line);
+                uint8_t indentation = countLeadingChar(line, ' ');
+                if (indentation > skipTo) {
+                    continue;
+                }
+                skipTo = -1; // will set to max value
+                if (loopIndent != (uint8_t)-1 && indentation <= loopIndent && loopStartPos != pos) {
+                    fseek(file, loopStartPos, SEEK_SET);
+                    continue;
+                }
+                ResultTypes result = parseScriptLine(line, filename, indentation, callback);
+                if (result == ResultTypes::IF_FALSE) {
+                    skipTo = indentation;
+                } else if (result == ResultTypes::LOOP_FALSE) {
+                    skipTo = indentation;
+                    loopIndent = -1;
+                } else if (result == ResultTypes::LOOP) {
+                    loopStartPos = pos;
+                    loopIndent = indentation;
+                }
             }
-            skipTo = -1; // will set to max value
-            if (loopIndent != (uint8_t)-1 && indentation <= loopIndent && loopStartPos != pos) {
-                fseek(file, loopStartPos, SEEK_SET);
-                continue;
-            }
-            ResultTypes result = parseScriptLine(line, filename, indentation, callback);
-            if (result == ResultTypes::IF_FALSE) {
-                skipTo = indentation;
-            } else if (result == ResultTypes::LOOP_FALSE) {
-                skipTo = indentation;
-                loopIndent = -1;
-            } else if (result == ResultTypes::LOOP) {
-                loopStartPos = pos;
-                loopIndent = indentation;
-            }
+            fclose(file);
+        } catch (const std::exception& e) {
+            throw std::runtime_error("DustScript Error (" + string(filename) + ": "
+                + std::to_string(lineCount) + "): " + lineStack + "\t" + std::string(e.what()));
         }
-        fclose(file);
     }
 
     static DustScript& load(const char* filename, void (*callback)(char* command, char* params, const char* filename, uint8_t indentation))
