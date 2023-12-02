@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <vector>
 #include <cstdint>
+#include <algorithm>
 
 class DustScript {
 protected:
@@ -122,6 +123,11 @@ protected:
         variable.key = line.key;
         variable.value = line.value;
         variables.push_back(variable);
+
+        // sort variable from longer to shorter to avoid that a variable is overwritten by another
+        std::sort(variables.begin(), variables.end(), [](const Variable& a, const Variable& b) {
+            return a.key.length() > b.key.length();
+        });
     }
 
     bool evalIf(string params)

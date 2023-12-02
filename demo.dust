@@ -23,6 +23,7 @@ print: example $test
 $val=1
 print: (10 + sqr(2) - 1 + 4 / 2) should be equal to 15 and ($val+2) should be equal to 3
 
+$scre=test bug is fixed
 $screen=ui_320x172
 
 if: $screen == ui_320x172
