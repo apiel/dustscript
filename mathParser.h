@@ -4,6 +4,7 @@
 #include <cstring>
 #include <math.h>
 #include <stdexcept>
+#include <cstdint>
 
 using namespace std;
 
@@ -65,6 +66,7 @@ double evalOperator(double result, uint8_t operatorIndex = 0);
 
 int8_t getFunctionIndex(char* func)
 {
+    
     for (int8_t i = 0; i < mathFunctionCount; i++) {
         if (!strcmp(func, mathFunctions[i].name)) {
             return i;
