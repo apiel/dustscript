@@ -4,10 +4,10 @@
 #include "mathParser.h"
 #include "trim.h"
 
+#include <algorithm>
+#include <cstdint>
 #include <stdexcept>
 #include <vector>
-#include <cstdint>
-#include <algorithm>
 
 class DustScript {
 protected:
@@ -30,10 +30,7 @@ protected:
     };
     static const uint8_t operatorCount = 6;
     Operator operators[operatorCount] = {
-        { "==", [](string left, string right) {
-            printf("Comparing '%s' and '%s'\n", left.c_str(), right.c_str());
-            return left == right; 
-        } },
+        { "==", [](string left, string right) { return left == right; } },
         { "!=", [](string left, string right) { return left != right; } },
         { ">", [](string left, string right) { return stod(left) > stod(right); } },
         { "<", [](string left, string right) { return stod(left) < stod(right); } },
