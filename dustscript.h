@@ -15,7 +15,6 @@ protected:
         string key;
         string value;
     };
-    std::vector<Variable> variables;
 
     enum ResultTypes {
         DEFAULT = 0,
@@ -41,7 +40,7 @@ protected:
     string applyVariable(char* str)
     {
         std::string target(str);
-        for (auto variable : variables) {
+        for (auto variable : props.variables) {
             int pos;
             std::string k(variable.key);
             while ((pos = target.find(k)) != std::string::npos) {
@@ -106,25 +105,35 @@ protected:
         return value;
     }
 
-    void setVariable(char* lineStr)
+    void sortVariable()
     {
-        Line line = splitLine(lineStr, "=");
+        // sort variable from longer to shorter to avoid that a variable is overwritten by another
+        std::sort(props.variables.begin(), props.variables.end(), [](const Variable& a, const Variable& b) {
+            return a.key.length() > b.key.length();
+        });
+    }
+
+    void setVariable(char* key, char* value)
+    {
         // search first if variable already exists
-        for (int i = 0; i < variables.size(); i++) {
-            if (variables[i].key == line.key) {
-                variables[i].value = line.value;
+        for (int i = 0; i < props.variables.size(); i++) {
+            if (props.variables[i].key == key) {
+                props.variables[i].value = value;
                 return;
             }
         }
         Variable variable;
-        variable.key = line.key;
-        variable.value = line.value;
-        variables.push_back(variable);
+        variable.key = key;
+        variable.value = value;
+        props.variables.push_back(variable);
 
-        // sort variable from longer to shorter to avoid that a variable is overwritten by another
-        std::sort(variables.begin(), variables.end(), [](const Variable& a, const Variable& b) {
-            return a.key.length() > b.key.length();
-        });
+        sortVariable();
+    }
+
+    void setVariable(char* lineStr)
+    {
+        Line line = splitLine(lineStr, "=");
+        setVariable(line.key, line.value);
     }
 
     bool evalIf(string params)
@@ -222,10 +231,23 @@ public:
         }
     }
 
-    static DustScript& load(const char* filename, void (*callback)(char* command, char* params, const char* filename, uint8_t indentation))
+    struct Props {
+        std::vector<Variable> variables;
+    } props;
+
+    DustScript(Props& props)
+        : props(props)
+    {
+        sortVariable();
+    }
+
+    static DustScript& load(
+        const char* filename,
+        void (*callback)(char* command, char* params, const char* filename, uint8_t indentation),
+        Props props = {})
     {
         if (!instance) {
-            instance = new DustScript();
+            instance = new DustScript(props);
         }
         instance->run(filename, callback);
         return *instance;
