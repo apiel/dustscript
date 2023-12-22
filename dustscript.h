@@ -44,6 +44,7 @@ protected:
             int pos;
             std::string k(variable.key);
             while ((pos = target.find(k)) != std::string::npos) {
+                // printf("Replacing (pos %d, len %ld) %s with %s\n", pos, k.length(), k.c_str(), variable.value.c_str());
                 target.replace(pos, k.length(), variable.value);
             }
         }

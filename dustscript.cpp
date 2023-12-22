@@ -1,26 +1,25 @@
+#include <filesystem>
 #include <stdio.h>
 
 #include "dustscript.h"
 
-void scriptCallback(char *command, char*  params, const char *filename, uint8_t indentation)
+void scriptCallback(char* command, char* params, const char* filename, uint8_t indentation)
 {
-    if (strcmp(command, "print") == 0)
-    {
+    if (strcmp(command, "print") == 0) {
         printf(">> LOG: %s\n", params);
-    }
-    else
-    {
+    } else {
         printf("(%s, %d) command: %s params: %s\n", filename, indentation, command, params);
     }
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
-    if (argc != 2)
-    {
+    if (argc != 2) {
         printf("Usage: %s <script>\n", argv[0]);
         return 1;
     }
-    DustScript::load(argv[1], scriptCallback);
+    DustScript::load(argv[1], scriptCallback, {
+                                                  .variables = { { "$CWD", std::filesystem::current_path() } },
+                                              });
     return 0;
 }

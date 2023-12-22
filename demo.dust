@@ -1,3 +1,5 @@
+print: current path is $CWD
+
 someAction: some parameters, 1 + 2, should be equal to 3
   anotherAction: indented of 2 spaces
 
