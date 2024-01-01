@@ -209,6 +209,9 @@ public:
                 if (indentation > skipTo) {
                     continue;
                 }
+                if (line[indentation] == '\n' || line[indentation] == '\0') {
+                    continue;
+                }
                 skipTo = -1; // will set to max value
                 if (loopIndent != (uint8_t)-1 && indentation <= loopIndent && loopStartPos != pos) {
                     fseek(file, loopStartPos, SEEK_SET);
