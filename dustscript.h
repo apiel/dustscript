@@ -114,29 +114,6 @@ protected:
         });
     }
 
-    void setVariable(char* key, char* value)
-    {
-        // search first if variable already exists
-        for (int i = 0; i < props.variables.size(); i++) {
-            if (props.variables[i].key == key) {
-                props.variables[i].value = value;
-                return;
-            }
-        }
-        Variable variable;
-        variable.key = key;
-        variable.value = value;
-        props.variables.push_back(variable);
-
-        sortVariable();
-    }
-
-    void setVariable(char* lineStr)
-    {
-        Line line = splitLine(lineStr, "=");
-        setVariable(line.key, line.value);
-    }
-
     bool evalIf(string params)
     {
         for (auto op : operators) {
@@ -151,7 +128,13 @@ protected:
         return false;
     }
 
-    ResultTypes defaultCallback(char* command, char* params, const char* filename, uint8_t indentation, void (*callback)(char* command, char* params, const char* filename, uint8_t indentation))
+    void setVariable(char* lineStr)
+    {
+        Line line = splitLine(lineStr, "=");
+        setVariable(line.key, line.value);
+    }
+
+    ResultTypes defaultCallback(char* command, char* params, const char* filename, uint8_t indentation, void (*callback)(char* command, char* params, const char* filename, uint8_t indentation, DustScript& instance))
     {
         if (strcmp(command, "if") == 0) {
             return evalIf(params) ? ResultTypes::DEFAULT : ResultTypes::IF_FALSE;
@@ -159,7 +142,7 @@ protected:
         if (strcmp(command, "while") == 0) {
             return evalIf(params) ? ResultTypes::LOOP : ResultTypes::LOOP_FALSE;
         }
-        callback(command, params, filename, indentation);
+        callback(command, params, filename, indentation, *this);
 
         return ResultTypes::DEFAULT;
     }
@@ -167,7 +150,7 @@ protected:
     static DustScript* instance;
 
 public:
-    ResultTypes parseScriptLine(char* lineStr, const char* filename, uint8_t indentation, void (*callback)(char* command, char* params, const char* filename, uint8_t indentation))
+    ResultTypes parseScriptLine(char* lineStr, const char* filename, uint8_t indentation, void (*callback)(char* command, char* params, const char* filename, uint8_t indentation, DustScript& instance))
     {
         lineStr = ltrim(lineStr, ' ');
 
@@ -187,7 +170,7 @@ public:
         return defaultCallback(line.key, line.value, filename, indentation, callback);
     }
 
-    void run(const char* filename, void (*callback)(char* command, char* params, const char* filename, uint8_t indentation))
+    void run(const char* filename, void (*callback)(char* command, char* params, const char* filename, uint8_t indentation, DustScript& instance))
     {
         uint lineCount = 0;
         string lineStack = "";
@@ -235,6 +218,23 @@ public:
         }
     }
 
+    void setVariable(char* key, char* value)
+    {
+        // search first if variable already exists
+        for (int i = 0; i < props.variables.size(); i++) {
+            if (props.variables[i].key == key) {
+                props.variables[i].value = value;
+                return;
+            }
+        }
+        Variable variable;
+        variable.key = key;
+        variable.value = value;
+        props.variables.push_back(variable);
+
+        sortVariable();
+    }
+
     struct Props {
         std::vector<Variable> variables;
     } props;
@@ -247,7 +247,7 @@ public:
 
     static DustScript& load(
         const char* filename,
-        void (*callback)(char* command, char* params, const char* filename, uint8_t indentation),
+        void (*callback)(char* command, char* params, const char* filename, uint8_t indentation, DustScript& instance),
         Props props = {})
     {
         if (!instance) {

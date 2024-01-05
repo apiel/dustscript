@@ -31,4 +31,7 @@ $screen=ui_320x172
 if: $screen == ui_320x172
   print: this should be printed for $screen
 
+myFunc: 1234
+print: result from myFunc = $myVar
+
 print: end of demo
