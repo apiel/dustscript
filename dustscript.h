@@ -134,6 +134,19 @@ protected:
         setVariable(line.key, line.value);
     }
 
+    void getFullpath(char* newPath, const char* parentFilename, char* fullpathBuffer)
+    {
+        char* lastSlash;
+        strcpy(fullpathBuffer, parentFilename);
+        if (newPath[0] == '/' || (lastSlash = strrchr(fullpathBuffer, '/')) == NULL) {
+          fullpathBuffer[0] = '\0';
+        } else {
+            *lastSlash = '\0';
+            strcat(fullpathBuffer, "/");
+        }
+        strcat(fullpathBuffer, newPath);
+    }
+
     ResultTypes defaultCallback(char* command, char* params, const char* filename, uint8_t indentation, void (*callback)(char* command, char* params, const char* filename, uint8_t indentation, DustScript& instance))
     {
         if (strcmp(command, "if") == 0) {
@@ -141,6 +154,12 @@ protected:
         }
         if (strcmp(command, "while") == 0) {
             return evalIf(params) ? ResultTypes::LOOP : ResultTypes::LOOP_FALSE;
+        }
+        if (strcmp(command, "include") == 0) {
+            char fullpath[512];
+            getFullpath(params, filename, fullpath);
+            DustScript::load(fullpath, callback);
+            return ResultTypes::DEFAULT;
         }
         callback(command, params, filename, indentation, *this);
 
