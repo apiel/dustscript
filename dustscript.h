@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <functional>
 #include <stdexcept>
 #include <vector>
 
@@ -139,7 +140,7 @@ protected:
         char* lastSlash;
         strcpy(fullpathBuffer, parentFilename);
         if (newPath[0] == '/' || (lastSlash = strrchr(fullpathBuffer, '/')) == NULL) {
-          fullpathBuffer[0] = '\0';
+            fullpathBuffer[0] = '\0';
         } else {
             *lastSlash = '\0';
             strcat(fullpathBuffer, "/");
@@ -147,7 +148,7 @@ protected:
         strcat(fullpathBuffer, newPath);
     }
 
-    ResultTypes defaultCallback(char* command, char* params, const char* filename, uint8_t indentation, void (*callback)(char* command, char* params, const char* filename, uint8_t indentation, DustScript& instance))
+    ResultTypes defaultCallback(char* command, char* params, const char* filename, uint8_t indentation, std::function<void(char* key, char* value, const char* filename, uint8_t indentation, DustScript& instance)> callback)
     {
         if (strcmp(command, "if") == 0) {
             return evalIf(params) ? ResultTypes::DEFAULT : ResultTypes::IF_FALSE;
@@ -169,7 +170,7 @@ protected:
     static DustScript* instance;
 
 public:
-    ResultTypes parseScriptLine(char* lineStr, const char* filename, uint8_t indentation, void (*callback)(char* command, char* params, const char* filename, uint8_t indentation, DustScript& instance))
+    ResultTypes parseScriptLine(char* lineStr, const char* filename, uint8_t indentation, std::function<void(char* key, char* value, const char* filename, uint8_t indentation, DustScript& instance)> callback)
     {
         lineStr = ltrim(lineStr, ' ');
 
@@ -189,7 +190,7 @@ public:
         return defaultCallback(line.key, line.value, filename, indentation, callback);
     }
 
-    void run(const char* filename, void (*callback)(char* command, char* params, const char* filename, uint8_t indentation, DustScript& instance))
+    void run(const char* filename, std::function<void(char* key, char* value, const char* filename, uint8_t indentation, DustScript& instance)> callback)
     {
         uint lineCount = 0;
         string lineStack = "";
@@ -266,7 +267,7 @@ public:
 
     static DustScript& load(
         const char* filename,
-        void (*callback)(char* command, char* params, const char* filename, uint8_t indentation, DustScript& instance),
+        std::function<void(char* key, char* value, const char* filename, uint8_t indentation, DustScript& instance)> callback,
         Props props = {})
     {
         if (!instance) {
