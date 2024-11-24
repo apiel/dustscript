@@ -11,12 +11,13 @@
 #include <vector>
 
 class DustScript {
-protected:
+public:
     struct Variable {
         string key;
         string value;
     };
 
+protected:
     enum ResultTypes {
         DEFAULT = 0,
         IF_FALSE,
