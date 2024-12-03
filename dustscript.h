@@ -76,6 +76,10 @@ protected:
     string applyMathInString(string value)
     {
         size_t start = value.find('(');
+        if (start != string::npos && value[start - 1] == '\\') {
+            // remove the escape character
+            return value.substr(0, start - 1) + value.substr(start);
+        }
         string prefix = value.substr(0, start);
         string mathExpr = value.substr(start + 1);
         uint8_t open = 1;
